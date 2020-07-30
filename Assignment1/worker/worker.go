@@ -6,6 +6,6 @@ import (
 )
 
 type Worker struct {
-	person.Person
+	*person.Person
 	profession.Profession
 }
