@@ -2,18 +2,26 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 
 	"./person"
 	"./profession"
 	"./worker"
 )
 
+func pollWorker(cache map[string]worker.Worker) map[string]reflect.Type {
+	professionTypeCache := make(map[string]reflect.Type)
+
+	for name, worker := range cache {
+		professionTypeCache[name] = reflect.TypeOf(worker.Profession)
+	}
+
+	return professionTypeCache
+}
+
 func main() {
 	wellKnownPerson := person.Person{Name: "Marcus", Surname: "Aurelius"}
 	anotherWellKnownPerson := person.Person{Name: "Rene", Surname: "Descartes"}
-
-	fmt.Println(wellKnownPerson.Name, wellKnownPerson.Surname)
-	fmt.Println(anotherWellKnownPerson.Name, anotherWellKnownPerson.Surname)
 
 	emperor := worker.Worker{
 		Person: &wellKnownPerson,
@@ -23,15 +31,18 @@ func main() {
 		},
 	}
 	philosopher := worker.Worker{
+		Person: &anotherWellKnownPerson,
 		Profession: &profession.Philosopher{
 			Direction: "rationalism",
 		},
 	}
-	// fmt.Println(philosopher.Introduce())	  //Uncommenting this line will make the code panic (nil pointer dereferencing)
-	philosopher.Person = &anotherWellKnownPerson
 
-	fmt.Println(emperor.Introduce())
-	fmt.Println(philosopher.Introduce())
-	fmt.Printf("%s %s job is: %s\n", emperor.Name, emperor.Surname, emperor.Position())
-	fmt.Printf("%s %s job is: %s\n", philosopher.Name, philosopher.Surname, philosopher.Position())
+	workersCache := map[string]worker.Worker{
+		"Marcus": emperor,
+		"Rene":   philosopher,
+	}
+
+	professionTypeCache := pollWorker(workersCache)
+
+	fmt.Println(professionTypeCache)
 }
